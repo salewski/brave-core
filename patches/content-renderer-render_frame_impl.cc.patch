@@ -1,5 +1,5 @@
 diff --git a/content/renderer/render_frame_impl.cc b/content/renderer/render_frame_impl.cc
-index e18fd3c17ddc7403cc076f179563f749f2bd3391..8824a88ea70712bf3383d12d1fddc1151020b398 100644
+index e18fd3c17ddc7403cc076f179563f749f2bd3391..07fb4d95c24b54478bd632fd721d697e04ccbea3 100644
 --- a/content/renderer/render_frame_impl.cc
 +++ b/content/renderer/render_frame_impl.cc
 @@ -233,6 +233,8 @@
@@ -64,3 +64,16 @@ index e18fd3c17ddc7403cc076f179563f749f2bd3391..8824a88ea70712bf3383d12d1fddc115
  PreviewsState RenderFrameImpl::GetPreviewsState() {
    WebDocumentLoader* document_loader = frame_->GetDocumentLoader();
    return document_loader ? document_loader->GetPreviewsState()
+@@ -5051,6 +5085,12 @@ void RenderFrameImpl::DispatchLoad() {
+   Send(new FrameHostMsg_DispatchLoad(routing_id_));
+ }
+ 
++#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
++void RenderFrameImpl::RegisterRemoteFrameCreated(const GURL& url) {
++  Send(new FrameHostMsg_RegisterRemoteFrameCreated(routing_id_, url));
++}
++#endif
++
+ void RenderFrameImpl::DidBlockNavigation(
+     const WebURL& blocked_url,
+     const WebURL& initiator_url,
