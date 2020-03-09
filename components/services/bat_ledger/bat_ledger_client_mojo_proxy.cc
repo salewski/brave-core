@@ -125,7 +125,7 @@ void BatLedgerClientMojoProxy::OnWalletProperties(
 
 void BatLedgerClientMojoProxy::OnReconcileComplete(
     ledger::Result result,
-    const std::string& viewing_id,
+    const std::string& contribution_id,
     const double amount,
     const ledger::RewardsType type) {
   if (!Connected())
@@ -133,7 +133,7 @@ void BatLedgerClientMojoProxy::OnReconcileComplete(
 
   bat_ledger_client_->OnReconcileComplete(
       result,
-      viewing_id,
+      contribution_id,
       amount,
       type);
 }
