@@ -13,6 +13,7 @@
 #include <string>
 
 #include "base/gtest_prod_util.h"
+#include "bat/ledger/internal/contribution/contribution_sku.h"
 #include "bat/ledger/ledger.h"
 
 namespace bat_ledger {
@@ -77,6 +78,12 @@ class Contribution {
       const double amount,
       ledger::ResultCallback callback);
 
+  void TransferFunds(
+      const double amount,
+      const std::string& destination,
+      ledger::ExternalWalletPtr wallet,
+      ledger::TransactionCallback callback);
+
  private:
   void CheckContributionQueue();
 
@@ -92,6 +99,8 @@ class Contribution {
   void OnSavePendingContribution(const ledger::Result result);
 
   void PrepareACList(ledger::PublisherInfoList list);
+
+  void ACListSaved(const ledger::Result result);
 
   void StartRecurringTips(ledger::ResultCallback callback);
 
@@ -176,10 +185,6 @@ class Contribution {
       const ledger::ExternalWallet& wallet,
       const ledger::RewardsType type);
 
-  void OnUpholdAC(ledger::Result result,
-                  bool created,
-                  const std::string& contribution_id);
-
   void OnDeleteContributionQueue(const ledger::Result result);
 
   void ExternalWalletCompleted(
@@ -188,9 +193,14 @@ class Contribution {
       const std::string& contribution_id,
       const ledger::RewardsType type);
 
+  void OnSKUAutoContribute(
+      const ledger::Result result,
+      const std::string& contribution_id);
+
   bat_ledger::LedgerImpl* ledger_;  // NOT OWNED
   std::unique_ptr<Unverified> unverified_;
   std::unique_ptr<Unblinded> unblinded_;
+  std::unique_ptr<ContributionSKU> sku_;
   std::unique_ptr<braveledger_uphold::Uphold> uphold_;
   uint32_t last_reconcile_timer_id_;
   std::map<std::string, uint32_t> retry_timers_;

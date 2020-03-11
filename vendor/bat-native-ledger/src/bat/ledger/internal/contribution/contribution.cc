@@ -57,9 +57,11 @@ Contribution::Contribution(bat_ledger::LedgerImpl* ledger) :
     ledger_(ledger),
     unverified_(std::make_unique<Unverified>(ledger, this)),
     unblinded_(std::make_unique<Unblinded>(ledger)),
+    sku_(std::make_unique<ContributionSKU>(ledger)),
     uphold_(std::make_unique<braveledger_uphold::Uphold>(ledger)),
     last_reconcile_timer_id_(0u),
     queue_timer_id_(0u) {
+  DCHECK(ledger_ && uphold_);
 }
 
 Contribution::~Contribution() = default;
@@ -73,9 +75,11 @@ void Contribution::Initialize() {
 }
 
 void Contribution::CheckContributionQueue() {
-  const auto start_timer_in = ledger::is_testing
-      ? 1
-      : brave_base::random::Geometric(15);
+  // TODO(nejczdovc): remove before merge
+  auto start_timer_in = 10;
+//  const auto start_timer_in = ledger::is_testing
+//      ? 1
+//      : brave_base::random::Geometric(15);
 
   SetTimer(&queue_timer_id_, start_timer_in);
 }
@@ -272,6 +276,7 @@ void Contribution::PrepareACList(ledger::PublisherInfoList list) {
   ledger_->NormalizeContributeWinners(&normalized_list, &list, 0);
 
   if (normalized_list.empty()) {
+    BLOG(ledger_, ledger::LogLevel::LOG_INFO) << "AC list is empty";
     return;
   }
 
@@ -287,15 +292,34 @@ void Contribution::PrepareACList(ledger::PublisherInfoList list) {
     queue_list.push_back(std::move(publisher));
   }
 
+  if (queue_list.empty()) {
+    BLOG(ledger_, ledger::LogLevel::LOG_INFO) << "AC queue list is empty";
+    return;
+  }
+
   auto queue = ledger::ContributionQueue::New();
   queue->type = ledger::RewardsType::AUTO_CONTRIBUTE;
   queue->amount = ledger_->GetContributionAmount();
   queue->partial = true;
   queue->publishers = std::move(queue_list);
-  // TODO add real callback
+
+  auto save_callback = std::bind(&Contribution::ACListSaved,
+      this,
+      _1);
+
   ledger_->SaveContributionQueue(
       std::move(queue),
-      [](const ledger::Result _){});
+      save_callback);
+}
+
+void Contribution::ACListSaved(const ledger::Result result) {
+  if (result != ledger::Result::LEDGER_OK) {
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR)
+        << "Couldn't save AC list in the queue";
+    return;
+  }
+
+  BLOG(ledger_, ledger::LogLevel::LOG_INFO) << "ACListSaved";
   CheckContributionQueue();
 }
 
@@ -550,6 +574,7 @@ void Contribution::CreateNewEntry(
     }
   } else {
     publishers_new = std::move(queue->publishers);
+    queue->amount = 0;
   }
 
   ledger::ContributionPublisherList publisher_list;
@@ -727,16 +752,15 @@ void Contribution::ExternalWalletContributionInfo(
   }
 
   if (contribution->type == ledger::RewardsType::AUTO_CONTRIBUTE) {
-    auto callback = std::bind(&Contribution::OnUpholdAC,
-                              this,
-                              _1,
-                              _2,
-                              contribution->contribution_id);
-    uphold_->TransferFunds(
+    auto ac_callback = std::bind(&Contribution::OnSKUAutoContribute,
+        this,
+        _1,
+        contribution->contribution_id);
+
+    sku_->AutoContribution(
         contribution->amount,
-        ledger_->GetCardIdAddress(),
         ledger::ExternalWallet::New(wallet),
-        callback);
+        ac_callback);
     return;
   }
 
@@ -793,15 +817,48 @@ void Contribution::ExternalWalletCompleted(
   ledger_->ContributionCompleted(result, amount, contribution_id, type);
 }
 
-void Contribution::OnUpholdAC(ledger::Result result,
-                              bool created,
-                              const std::string& contribution_id) {
+void Contribution::OnSKUAutoContribute(
+    const ledger::Result result,
+    const std::string& contribution_id) {
   if (result != ledger::Result::LEDGER_OK) {
-    // TODO(nejczdovc): add retries
+    ExternalWalletCompleted(
+        result,
+        0,
+        contribution_id,
+        ledger::RewardsType::AUTO_CONTRIBUTE);
     return;
   }
 
-  // TODO implement
+  // TODO change processor to BRAVE_TOKENS or
+  // do we need to detect process + type and do it in retries
+
+  unblinded_->Start(contribution_id);
+}
+
+void Contribution::TransferFunds(
+    const double amount,
+    const std::string& destination,
+    ledger::ExternalWalletPtr wallet,
+    ledger::TransactionCallback callback) {
+  if (!wallet) {
+     BLOG(ledger_, ledger::LogLevel::LOG_ERROR)
+        << "Wallet is null";
+    callback(ledger::Result::LEDGER_ERROR, "");
+    return;
+  }
+
+  if (wallet->type == ledger::kWalletUphold) {
+    uphold_->TransferFunds(
+        amount,
+        destination,
+        std::move(wallet),
+        callback);
+    return;
+  }
+
+  NOTREACHED();
+  BLOG(ledger_, ledger::LogLevel::LOG_ERROR)
+      << "Wallet type not supported: " << wallet->type;
 }
 
 }  // namespace braveledger_contribution
