@@ -34,6 +34,7 @@ const char kRuleNameFormat[] = "greaselion-%zu";
 const char kPreconditions[] = "preconditions";
 const char kURLs[] = "urls";
 const char kScripts[] = "scripts";
+const char kRunAt[] = "run_at";
 // precondition keys
 const char kRewards[] = "rewards-enabled";
 const char kTwitterTips[] = "twitter-tips-enabled";
@@ -57,6 +58,7 @@ GreaselionRule::GreaselionRule(const std::string& name)
 void GreaselionRule::Parse(base::DictionaryValue* preconditions_value,
                            base::ListValue* urls_value,
                            base::ListValue* scripts_value,
+                           const std::string& run_at_value,
                            const base::FilePath& root_dir) {
   preconditions_.rewards_enabled =
       ParsePrecondition(preconditions_value, kRewards);
@@ -72,6 +74,7 @@ void GreaselionRule::Parse(base::DictionaryValue* preconditions_value,
       return;
     }
     url_patterns_.push_back(pattern_string);
+    run_at_ = run_at_value;
   }
   for (const auto& scripts_it : scripts_value->GetList()) {
     base::FilePath script_path =
@@ -141,9 +144,13 @@ void GreaselionDownloadService::OnDATFileDataReady(std::string contents) {
     rule_dict->GetList(kURLs, &urls_value);
     base::ListValue* scripts_value = nullptr;
     rule_dict->GetList(kScripts, &scripts_value);
+    const std::string* run_at_ptr = rule_it.FindStringPath(kRunAt);
+    const std::string run_at_value = run_at_ptr ? *run_at_ptr : "";
+
     std::unique_ptr<GreaselionRule> rule = std::make_unique<GreaselionRule>(
         base::StringPrintf(kRuleNameFormat, rules_.size()));
-    rule->Parse(preconditions_value, urls_value, scripts_value, install_dir_);
+    rule->Parse(preconditions_value, urls_value, scripts_value,
+        run_at_value, install_dir_);
     rules_.push_back(std::move(rule));
   }
   for (Observer& observer : observers_)
