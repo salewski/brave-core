@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -172,13 +173,12 @@ struct BookmarkByDateAddedComparator {
                   const bookmarks::BookmarkNode* rhs) const {
     DCHECK(lhs);
     DCHECK(rhs);
-    DCHECK(!tools::IsTimeEmpty(lhs->date_added()));
-    DCHECK(!tools::IsTimeEmpty(rhs->date_added()));
+    // date_added can be nul or even equal, so multiset below is used
     return lhs->date_added() < rhs->date_added();
   }
 };
-using SortedNodes =
-    std::set<const bookmarks::BookmarkNode*, BookmarkByDateAddedComparator>;
+using SortedNodes = std::multiset<const bookmarks::BookmarkNode*,
+                                  BookmarkByDateAddedComparator>;
 using ObjectIdToNodes = std::map<std::string, SortedNodes>;
 
 void FillObjectsMap(const bookmarks::BookmarkNode* parent,
@@ -201,8 +201,12 @@ void ClearDuplicatedNodes(ObjectIdToNodes* object_id_nodes,
   for (ObjectIdToNodes::iterator it_object_id = object_id_nodes->begin();
        it_object_id != object_id_nodes->end(); ++it_object_id) {
     const SortedNodes& nodes = it_object_id->second;
+    std::string object_id = it_object_id->first;
+
     if (nodes.size() > 1) {
       // Nodes are sorted from oldest to newest, go to the second by age
+      // If nodes have equal age, in anyway keep the first and re-create all
+      // others
       SortedNodes::iterator it_nodes = nodes.begin();
       ++it_nodes;
       for (; it_nodes != nodes.end(); ++it_nodes) {
@@ -814,9 +818,10 @@ void BraveProfileSyncServiceImpl::MigrateDuplicatedBookmarksObjectIds(
   DCHECK(model);
   DCHECK(model->loaded());
 
-  bool duplicated_bookmarks_recovered =
-      profile->GetPrefs()->GetBoolean(prefs::kDuplicatedBookmarksRecovered);
-  if (duplicated_bookmarks_recovered) {
+  int migrated_version = profile->GetPrefs()->GetInteger(
+      prefs::kDuplicatedBookmarksMigrateVersion);
+
+  if (migrated_version >= 1) {
     return;
   }
 
@@ -828,7 +833,7 @@ void BraveProfileSyncServiceImpl::MigrateDuplicatedBookmarksObjectIds(
   FillObjectsMap(model->root_node(), &object_id_nodes);
   ClearDuplicatedNodes(&object_id_nodes, model);
 
-  profile->GetPrefs()->SetBoolean(prefs::kDuplicatedBookmarksRecovered, true);
+  profile->GetPrefs()->SetInteger(prefs::kDuplicatedBookmarksMigrateVersion, 1);
 }
 
 std::unique_ptr<SyncRecord>
