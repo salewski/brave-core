@@ -6,6 +6,7 @@ import * as React from 'react'
 import { BatColorIcon } from 'brave-ui/components/icons'
 import { Button } from 'brave-ui/components'
 
+import { LocaleContext, LocaleData } from '../localeContext'
 import { FormSection } from '../formSection'
 import { TermsOfSale } from '../termsOfSale'
 
@@ -19,19 +20,16 @@ import {
 } from './style'
 
 interface ActionButtonProps {
+  locale: LocaleData,
   onClick: () => void
 }
 
 function PayWithWalletButton (props: ActionButtonProps) {
-  return <Button text={'Pay with BAT'} size={'medium'} onClick={props.onClick} />
+  return <Button text={props.locale.get('payWithBat')} size={'medium'} onClick={props.onClick} />
 }
 
 function AddFundsButton (props: ActionButtonProps) {
-  return <Button text={'Add Funds'} size={'medium'} onClick={props.onClick} />
-}
-
-function NotEnoughFundsMessage (props: {}) {
-  return <span>You don't have enough tokens to buy this item.</span>
+  return <Button text={props.locale.get('addFundsLinkText')} size={'medium'} onClick={props.onClick} />
 }
 
 interface UseWalletPanelProps {
@@ -50,31 +48,33 @@ export function UseWalletPanel (props: UseWalletPanelProps) {
     return null
   }
 
+  const locale = React.useContext(LocaleContext)
+
   return (
     <>
-      <FormSection title={'Use your token balance'}>
+      <FormSection title={locale.get('useTokenBalance')}>
         <Content>
           <WalletInfoPanel>
-            <BatAmount>
+            <BatAmount locale={locale}>
               <BatColorIcon />{props.balance.toFixed(1)}
             </BatAmount>
             <ExchangeAmount>{props.balanceConverted}</ExchangeAmount>
-            <LastUpdated>Updated {props.lastUpdated}</LastUpdated>
+            <LastUpdated>{locale.get('updated')} {props.lastUpdated}</LastUpdated>
           </WalletInfoPanel>
           <ActionPanel>
             {
               props.hasSufficientFunds
-                ? <PayWithWalletButton onClick={props.onPayWithWallet} />
+                ? <PayWithWalletButton locale={locale} onClick={props.onPayWithWallet} />
                 : props.walletVerified
-                  ? <AddFundsButton onClick={props.onShowAddFunds} />
-                  : <NotEnoughFundsMessage />
+                  ? <AddFundsButton locale={locale} onClick={props.onShowAddFunds} />
+                  : <span>{locale.get('notEnoughFunds')}</span>
             }
           </ActionPanel>
         </Content>
       </FormSection>
       {
         props.hasSufficientFunds &&
-          <TermsOfSale text={'By clicking Pay with BAT, you agree to $1Brave’s Terms of Sale$2.'} />
+          <TermsOfSale text={locale.get('payWithBatTermsOfSale')} />
       }
     </>
   )

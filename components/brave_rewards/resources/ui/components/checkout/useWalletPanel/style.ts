@@ -4,6 +4,8 @@
 
 import styled from 'styled-components'
 
+import { LocaleData } from '../localeContext'
+
 export const Content = styled<{}, 'div'>('div')`
   display: flex;
 `
@@ -33,7 +35,7 @@ export const ActionPanel = styled.div`
   }
 `
 
-export const BatAmount = styled.span`
+export const BatAmount = styled.span<{ locale: LocaleData }>`
   font-size: 22px;
   padding-left: 26px;
   position: relative;
@@ -41,7 +43,7 @@ export const BatAmount = styled.span`
   left: 0;
 
   &::after {
-    content: "BAT";
+    content: "${p => p.locale.get('bat')}";
     padding-left: 5px;
     font-size: 18px;
   }
