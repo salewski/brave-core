@@ -46,7 +46,6 @@ extern const char kGoogleLoginControlType[];
 extern const char kFBEmbedControlType[];
 extern const char kTwitterEmbedControlType[];
 extern const char kLinkedInEmbedControlType[];
-extern const char kBravePaymentsPinnedItemCount[];
 extern const char kWebTorrentEnabled[];
 extern const char kHangoutsEnabled[];
 extern const char kHideBraveRewardsButton[];
@@ -67,10 +66,6 @@ extern const char kRemoteDebuggingEnabled[];
 extern const char kAutocompleteEnabled[];
 extern const char kBraveDarkMode[];
 extern const char kOtherBookmarksMigrated[];
-extern const char kImportDialogCookies[];
-extern const char kImportDialogStats[];
-extern const char kImportDialogLedger[];
-extern const char kImportDialogWindows[];
 extern const char kImportDialogExtensions[];
 
 #if defined(OS_ANDROID)

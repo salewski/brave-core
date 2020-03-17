@@ -58,14 +58,9 @@ ImportLockDialogView::ImportLockDialogView(
   SetLayoutManager(std::make_unique<views::FillLayout>());
 
   views::Label* description_label;
-  if (source_profile_.importer_type == ::importer::TYPE_CHROME) {
-    description_label =
-      new views::Label(l10n_util::GetStringUTF16(
-            IDS_CHROME_IMPORTER_LOCK_TEXT));
-  } else {  // if (source_profile_.importer_type == ::importer::TYPE_BRAVE)
-    description_label =
-      new views::Label(l10n_util::GetStringUTF16(IDS_BRAVE_IMPORTER_LOCK_TEXT));
-  }
+  DCHECK_EQ(::importer::TYPE_CHROME, source_profile_.importer_type);
+  description_label = new views::Label(l10n_util::GetStringUTF16(
+      IDS_CHROME_IMPORTER_LOCK_TEXT));
   description_label->SetBorder(views::CreateEmptyBorder(
       ChromeLayoutProvider::Get()->GetDialogInsetsForContentType(views::TEXT,
                                                                  views::TEXT)));
@@ -92,11 +87,8 @@ base::string16 ImportLockDialogView::GetDialogButtonLabel(
 }
 
 base::string16 ImportLockDialogView::GetWindowTitle() const {
-  if (source_profile_.importer_type == ::importer::TYPE_CHROME) {
-    return l10n_util::GetStringUTF16(IDS_CHROME_IMPORTER_LOCK_TITLE);
-  } else {  // if (source_profile_.importer_type == ::importer::TYPE_BRAVE) {
-    return l10n_util::GetStringUTF16(IDS_BRAVE_IMPORTER_LOCK_TITLE);
-  }
+  DCHECK_EQ(::importer::TYPE_CHROME, source_profile_.importer_type);
+  return l10n_util::GetStringUTF16(IDS_CHROME_IMPORTER_LOCK_TITLE);
 }
 
 bool ImportLockDialogView::Accept() {
