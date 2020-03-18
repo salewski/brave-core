@@ -1646,8 +1646,13 @@ TEST_F(BraveSyncServiceTest, MigrateDuplicatedBookmarksObjectIds) {
 
   model()->Copy(bookmark_a1, model()->other_node(), 1);
 
+  model()->Copy(bookmark_a1, model()->other_node(), 2);
+
   const bookmarks::BookmarkNode* bookmark_copy =
       model()->other_node()->children().at(1).get();
+
+  const bookmarks::BookmarkNode* bookmark_copy2 =
+      model()->other_node()->children().at(2).get();
 
   std::string meta_object_id;
   EXPECT_TRUE(bookmark_copy->GetMetaInfo("object_id", &meta_object_id));
@@ -1663,19 +1668,48 @@ TEST_F(BraveSyncServiceTest, MigrateDuplicatedBookmarksObjectIds) {
   EXPECT_TRUE(bookmark_copy->GetMetaInfo("version", &meta_version));
   EXPECT_EQ(meta_version, "version_value");
 
+  EXPECT_TRUE(bookmark_copy2->GetMetaInfo("object_id", &meta_object_id));
+  EXPECT_EQ(meta_object_id, "object_id_value");
+  EXPECT_TRUE(bookmark_copy2->GetMetaInfo("order", &meta_order));
+  EXPECT_EQ(meta_order, "255.255.255.3");
+  EXPECT_TRUE(
+      bookmark_copy2->GetMetaInfo("sync_timestamp", &meta_sync_timestamp));
+  EXPECT_EQ(meta_sync_timestamp, "sync_timestamp_value");
+  EXPECT_TRUE(bookmark_copy2->GetMetaInfo("version", &meta_version));
+  EXPECT_EQ(meta_version, "version_value");
+
+  // Pretend all bookmarks does not have added time, as a worth case,
+  // but happened on live profile
+  AsMutable(bookmark_a1)->set_date_added(base::Time());
+  AsMutable(bookmark_copy)->set_date_added(base::Time());
+  AsMutable(bookmark_copy2)->set_date_added(base::Time());
+
   sync_service()->AddNonClonedBookmarkKeys(model());
 
   // Do the migration
   BraveProfileSyncServiceImpl::MigrateDuplicatedBookmarksObjectIds(profile(),
                                                                    model());
-  bookmark_copy = model()->other_node()->children().at(1).get();
 
   std::string meta_migrated_object_id;
-  EXPECT_TRUE(
-      bookmark_copy->GetMetaInfo("object_id", &meta_migrated_object_id));
-  EXPECT_NE(meta_migrated_object_id, "object_id_value");
+  // All ids should be different after migration
+  std::set<std::string> ids_after_migration;
 
-  std::string meta_migrated_order;
-  EXPECT_TRUE(bookmark_copy->GetMetaInfo("order", &meta_migrated_order));
-  EXPECT_NE(meta_migrated_order, "255.255.255.3");
+  const bookmarks::BookmarkNode* bookmark_0 =
+      model()->other_node()->children().at(0).get();
+  EXPECT_TRUE(bookmark_0->GetMetaInfo("object_id", &meta_migrated_object_id));
+  auto insert_result = ids_after_migration.insert(meta_migrated_object_id);
+  EXPECT_TRUE(insert_result.second);
+
+  const bookmarks::BookmarkNode* bookmark_1 =
+      model()->other_node()->children().at(1).get();
+
+  EXPECT_TRUE(bookmark_1->GetMetaInfo("object_id", &meta_migrated_object_id));
+  insert_result = ids_after_migration.insert(meta_migrated_object_id);
+  EXPECT_TRUE(insert_result.second);
+
+  const bookmarks::BookmarkNode* bookmark_2 =
+      model()->other_node()->children().at(2).get();
+  EXPECT_TRUE(bookmark_2->GetMetaInfo("object_id", &meta_migrated_object_id));
+  insert_result = ids_after_migration.insert(meta_migrated_object_id);
+  EXPECT_TRUE(insert_result.second);
 }
