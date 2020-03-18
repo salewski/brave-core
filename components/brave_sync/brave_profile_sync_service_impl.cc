@@ -200,10 +200,12 @@ void FillObjectsMap(const bookmarks::BookmarkNode* parent,
 
 void ClearDuplicatedNodes(ObjectIdToNodes* object_id_nodes,
                           bookmarks::BookmarkModel* model) {
+  size_t nodes_recreated = 0;
   for (ObjectIdToNodes::iterator it_object_id = object_id_nodes->begin();
        it_object_id != object_id_nodes->end(); ++it_object_id) {
     const SortedNodes& nodes = it_object_id->second;
     if (nodes.size() > 1) {
+      VLOG(1) << "[BraveSync] " << __func__ << " for object_id="<<it_object_id->first<<" nodes.size()="<<nodes.size();
       // Nodes are sorted from oldest to newest, go to the second by age
       // If nodes have equal age, in anyway keep the first and re-create all
       // others
@@ -214,14 +216,44 @@ void ClearDuplicatedNodes(ObjectIdToNodes* object_id_nodes,
         // Copy and delete node
         const auto* parent = node->parent();
         size_t original_index = parent->GetIndexOf(node);
+        VLOG(1) << "[BraveSync] " << __func__ << " Copying node into index="<<original_index;
         model->Copy(node, parent, original_index);
+        VLOG(1) << "[BraveSync] " << __func__ << " Removing original node";
         model->Remove(node);
+        nodes_recreated++;
+        VLOG(1) << "[BraveSync] " << __func__ << " Adding brave meta to copied node";
         brave_sync::AddBraveMetaInfoNoOrder(
             parent->children()[original_index].get());
       }
     }
   }
+  VLOG(1) << "[BraveSync] " << __func__ << " done nodes_recreated="<<nodes_recreated;
 }
+
+void TraceBookmarks(const bookmarks::BookmarkNode* parent, size_t ident) {
+  for (size_t i = 0; i < parent->children().size(); ++i) {
+    const bookmarks::BookmarkNode* current_child = parent->children()[i].get();
+    std::string object_id;
+    current_child->GetMetaInfo("object_id", &object_id);
+    std::string order;
+    current_child->GetMetaInfo("order", &order);
+    std::string sync_timestamp;
+    current_child->GetMetaInfo("sync_timestamp", &sync_timestamp);
+    std::string version;
+    current_child->GetMetaInfo("version", &version);
+
+    std::string s(ident, ' ');
+    VLOG(1) << s << "i=" << i;
+    VLOG(1) << s << "object_id=" << object_id;
+    VLOG(1) << s << "order=" << object_id;
+    VLOG(1) << s << "sync_timestamp=" << sync_timestamp;
+    VLOG(1) << s << "version=" << version;
+    if (current_child->is_folder()) {
+      TraceBookmarks(current_child, ident + 3);
+    }
+  }
+}
+
 }  // namespace
 
 BraveProfileSyncServiceImpl::BraveProfileSyncServiceImpl(Profile* profile,
@@ -821,10 +853,14 @@ void BraveProfileSyncServiceImpl::MigrateDuplicatedBookmarksObjectIds(
 
   int migrated_version = profile->GetPrefs()->GetInteger(
       prefs::kDuplicatedBookmarksMigrateVersion);
+  VLOG(1) << "[BraveSync] " << __func__ << " migrated_version="<<migrated_version;
 
   if (migrated_version >= 1) {
     return;
   }
+
+  VLOG(1) << "[BraveSync] " << __func__ << " Bookmarks before migration:";
+  TraceBookmarks(model->root_node(), 0);
 
   // Copying bookmarks through brave://bookmarks page could duplicate brave sync
   // metadata, which caused crash during chromium sync run
@@ -834,7 +870,11 @@ void BraveProfileSyncServiceImpl::MigrateDuplicatedBookmarksObjectIds(
   FillObjectsMap(model->root_node(), &object_id_nodes);
   ClearDuplicatedNodes(&object_id_nodes, model);
 
+  VLOG(1) << "[BraveSync] " << __func__ << " Bookmarks after migration:";
+  TraceBookmarks(model->root_node(), 0);
+
   profile->GetPrefs()->SetInteger(prefs::kDuplicatedBookmarksMigrateVersion, 1);
+  VLOG(1) << "[BraveSync] " << __func__ << " done";
 }
 
 std::unique_ptr<SyncRecord>
