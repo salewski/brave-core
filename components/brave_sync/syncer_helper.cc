@@ -38,6 +38,41 @@ void SetOrder(const bookmarks::BookmarkNode* node,
   tools::AsMutable(node)->SetMetaInfo("order", order);
 }
 
+void AddBraveMetaInfoImpl(const bookmarks::BookmarkNode* node, bool add_order) {
+  if (add_order) {
+    std::string parent_order;
+    node->parent()->GetMetaInfo("order", &parent_order);
+    SetOrder(node, parent_order);
+  }
+
+  std::string object_id;
+  node->GetMetaInfo("object_id", &object_id);
+  // newly created node
+  if (object_id.empty()) {
+    object_id = tools::GenerateObjectId();
+  }
+  tools::AsMutable(node)->SetMetaInfo("object_id", object_id);
+
+  std::string parent_object_id;
+  // other_node object id will be empty for the first time, it will be
+  // generated before sending commits
+  node->parent()->GetMetaInfo("object_id", &parent_object_id);
+  tools::AsMutable(node)->SetMetaInfo("parent_object_id", parent_object_id);
+
+  std::string sync_timestamp;
+  node->GetMetaInfo("sync_timestamp", &sync_timestamp);
+  if (sync_timestamp.empty()) {
+    sync_timestamp = std::to_string(base::Time::Now().ToJsTime());
+    tools::AsMutable(node)->SetMetaInfo("sync_timestamp", sync_timestamp);
+  }
+  DCHECK(!sync_timestamp.empty());
+  // Set other_node to have same sync_timestamp as least added child
+  if (node->parent()->type() == bookmarks::BookmarkNode::OTHER_NODE) {
+    tools::AsMutable(node->parent())
+        ->SetMetaInfo("sync_timestamp", sync_timestamp);
+  }
+}
+
 }  // namespace
 
 size_t GetIndex(const bookmarks::BookmarkNode* parent,
@@ -75,37 +110,12 @@ size_t GetIndex(const bookmarks::BookmarkNode* parent,
   return GetIndex(parent, order, object_id);
 }
 
+void AddBraveMetaInfoNoOrder(const bookmarks::BookmarkNode* node) {
+  AddBraveMetaInfoImpl(node, false);
+}
+
 void AddBraveMetaInfo(const bookmarks::BookmarkNode* node) {
-  std::string parent_order;
-  node->parent()->GetMetaInfo("order", &parent_order);
-  SetOrder(node, parent_order);
-
-  std::string object_id;
-  node->GetMetaInfo("object_id", &object_id);
-  // newly created node
-  if (object_id.empty()) {
-    object_id = tools::GenerateObjectId();
-  }
-  tools::AsMutable(node)->SetMetaInfo("object_id", object_id);
-
-  std::string parent_object_id;
-  // other_node object id will be empty for the first time, it will be
-  // generated before sending commits
-  node->parent()->GetMetaInfo("object_id", &parent_object_id);
-  tools::AsMutable(node)->SetMetaInfo("parent_object_id", parent_object_id);
-
-  std::string sync_timestamp;
-  node->GetMetaInfo("sync_timestamp", &sync_timestamp);
-  if (sync_timestamp.empty()) {
-    sync_timestamp = std::to_string(base::Time::Now().ToJsTime());
-    tools::AsMutable(node)->SetMetaInfo("sync_timestamp", sync_timestamp);
-  }
-  DCHECK(!sync_timestamp.empty());
-  // Set other_node to have same sync_timestamp as least added child
-  if (node->parent()->type() == bookmarks::BookmarkNode::OTHER_NODE) {
-    tools::AsMutable(node->parent())->SetMetaInfo("sync_timestamp",
-                                                  sync_timestamp);
-  }
+  AddBraveMetaInfoImpl(node, true);
 }
 
 }  // namespace brave_sync

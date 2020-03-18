@@ -173,8 +173,10 @@ struct BookmarkByDateAddedComparator {
                   const bookmarks::BookmarkNode* rhs) const {
     DCHECK(lhs);
     DCHECK(rhs);
-    // date_added can be nul or even equal, so multiset below is used
-    return lhs->date_added() < rhs->date_added();
+    // Nodes equal by object_id we want to sort by index in parent
+    // We need that to make easier the assigning of orders in the case
+    // when orders would be re-calculated on migration of object_id
+    return lhs->parent()->GetIndexOf(lhs) < rhs->parent()->GetIndexOf(rhs);
   }
 };
 using SortedNodes = std::multiset<const bookmarks::BookmarkNode*,
@@ -201,8 +203,6 @@ void ClearDuplicatedNodes(ObjectIdToNodes* object_id_nodes,
   for (ObjectIdToNodes::iterator it_object_id = object_id_nodes->begin();
        it_object_id != object_id_nodes->end(); ++it_object_id) {
     const SortedNodes& nodes = it_object_id->second;
-    std::string object_id = it_object_id->first;
-
     if (nodes.size() > 1) {
       // Nodes are sorted from oldest to newest, go to the second by age
       // If nodes have equal age, in anyway keep the first and re-create all
@@ -216,7 +216,8 @@ void ClearDuplicatedNodes(ObjectIdToNodes* object_id_nodes,
         size_t original_index = parent->GetIndexOf(node);
         model->Copy(node, parent, original_index);
         model->Remove(node);
-        brave_sync::AddBraveMetaInfo(parent->children()[original_index].get());
+        brave_sync::AddBraveMetaInfoNoOrder(
+            parent->children()[original_index].get());
       }
     }
   }

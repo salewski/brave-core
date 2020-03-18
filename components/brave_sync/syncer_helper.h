@@ -25,6 +25,8 @@ size_t GetIndex(const bookmarks::BookmarkNode* parent,
 
 void AddBraveMetaInfo(const bookmarks::BookmarkNode* node);
 
+void AddBraveMetaInfoNoOrder(const bookmarks::BookmarkNode* node);
+
 }  // namespace brave_sync
 
 #endif  // BRAVE_COMPONENTS_BRAVE_SYNC_SYNCER_HELPER_H_
