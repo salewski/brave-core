@@ -12,9 +12,9 @@ index e18fd3c17ddc7403cc076f179563f749f2bd3391..07fb4d95c24b54478bd632fd721d697e
  #include "content/renderer/pepper/pepper_browser_connection.h"
  #include "content/renderer/pepper/pepper_plugin_instance_impl.h"
 @@ -2263,6 +2265,10 @@ bool RenderFrameImpl::OnMessageReceived(const IPC::Message& msg) {
+ #endif
      IPC_MESSAGE_HANDLER(FrameMsg_CopyImageAt, OnCopyImageAt)
      IPC_MESSAGE_HANDLER(FrameMsg_SaveImageAt, OnSaveImageAt)
-     IPC_MESSAGE_HANDLER(FrameMsg_AddMessageToConsole, OnAddMessageToConsole)
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +    IPC_MESSAGE_HANDLER(FrameMsg_RegisterResourceBlockAd, OnRegisterResourceBlockAd)
 +    IPC_MESSAGE_HANDLER(FrameMsg_RegisterResourceBlockTracker, OnRegisterResourceBlockTracker)
@@ -23,7 +23,7 @@ index e18fd3c17ddc7403cc076f179563f749f2bd3391..07fb4d95c24b54478bd632fd721d697e
                          OnVisualStateRequest)
      IPC_MESSAGE_HANDLER(FrameMsg_Reload, OnReload)
 @@ -2595,6 +2601,20 @@ void RenderFrameImpl::OnAddMessageToConsole(
-   AddMessageToConsoleImpl(level, message, discard_duplicates);
+   frame_->SaveImageAt(WebPoint(viewport_position.x, viewport_position.y));
  }
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)

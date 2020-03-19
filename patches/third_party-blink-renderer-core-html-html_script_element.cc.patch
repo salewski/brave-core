@@ -10,10 +10,10 @@ index b667f998234f82ef768c7ccec366707163143182..046776dbe1be0575ecf645ad0c4c9e4a
 +
  namespace blink {
  
- using namespace html_names;
-@@ -49,7 +51,11 @@ HTMLScriptElement::HTMLScriptElement(Document& document,
+ HTMLScriptElement::HTMLScriptElement(Document& document,
+@@ -47,7 +59,11 @@ HTMLScriptElement::HTMLScriptElement(Document& document,
                                       const CreateElementFlags flags)
-     : HTMLElement(kScriptTag, document),
+     : HTMLElement(html_names::kScriptTag, document),
        loader_(InitializeScriptLoader(flags.IsCreatedByParser(),
 -                                     flags.WasAlreadyStarted())) {}
 +                                     flags.WasAlreadyStarted())) {

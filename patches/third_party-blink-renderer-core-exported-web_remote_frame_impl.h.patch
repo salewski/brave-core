@@ -12,9 +12,9 @@ index 0b5f67aa4c185d16fb7f9128d4a196db928805af..036061129ea15634820bc94771aa99b7
  class Layer;
  }
 @@ -85,6 +87,9 @@ class CORE_EXPORT WebRemoteFrameImpl final
+   void SetReplicatedInsecureRequestPolicy(WebInsecureRequestPolicy) override;
    void SetReplicatedInsecureNavigationsSet(const WebVector<unsigned>&) override;
    void ForwardResourceTimingToParent(const WebResourceTimingInfo&) override;
-   void DispatchLoadEventForFrameOwner() override;
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  void RegisterRemoteFrameCreatedForFrameOwner(const GURL& url) override;
 +#endif

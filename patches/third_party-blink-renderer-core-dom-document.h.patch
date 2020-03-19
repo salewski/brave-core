@@ -24,8 +24,8 @@ index 46208455b19db9656a10e2969d3bbaad03958cba..f29b83cc5adcc8ced7d5e67d5fcfedb1
    // TODO(thestig): Rename these and related functions, since we can call them
    // for controls outside of forms as well.
 @@ -1608,6 +1613,10 @@ class CORE_EXPORT Document : public ContainerNode,
-     return use_count_fragment_directive_;
    }
+ #endif
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  brave_page_graph::PageGraph* GetPageGraph();

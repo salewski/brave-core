@@ -11,9 +11,9 @@ index e5bcd550ade968e1e38a02014632ec94c16fe8bb..b6be3d552560274f23edff808b649792
  #if BUILDFLAG(ENABLE_PLUGINS)
  #include "content/common/pepper_renderer_instance_data.h"
  #endif
-@@ -741,6 +743,18 @@ IPC_MESSAGE_ROUTED3(FrameMsg_AddMessageToConsole,
-                     std::string /* message */,
-                     bool /* discard_duplicates */)
+@@ -725,6 +727,18 @@ // A message sent to RenderFrameProxy to indicate that its corresponding
+ // RenderFrame has completed loading.
+ IPC_MESSAGE_ROUTED0(FrameMsg_DidStopLoading)
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +// Record that a resource was blocked by an ad filter.
@@ -30,9 +30,9 @@ index e5bcd550ade968e1e38a02014632ec94c16fe8bb..b6be3d552560274f23edff808b649792
  // TODO(https://crbug.com/995428): Deprecated.
  // Tells the renderer to reload the frame.
  IPC_MESSAGE_ROUTED0(FrameMsg_Reload)
-@@ -757,6 +771,12 @@ IPC_MESSAGE_ROUTED1(FrameMsg_ForwardResourceTimingToParent,
- // this frame.
- IPC_MESSAGE_ROUTED0(FrameMsg_DispatchLoad)
+@@ -738,6 +758,12 @@ IPC_MESSAGE_ROUTED1(FrameMsg_SetAccessibilityMode, ui::AXMode)
+ IPC_MESSAGE_ROUTED1(FrameMsg_ForwardResourceTimingToParent,
+                     content::ResourceTimingInfo)
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +// Sent to a proxy to register a remote frame creation event for the
@@ -40,9 +40,9 @@ index e5bcd550ade968e1e38a02014632ec94c16fe8bb..b6be3d552560274f23edff808b649792
 +IPC_MESSAGE_ROUTED1(FrameMsg_RegisterRemoteFrameCreated, GURL /* url */)
 +#endif
 +
- // Sent to a subframe to control whether to collapse its the frame owner element
- // in the embedder document, that is, to remove it from the layout as if it did
- // not exist.
+ // Notifies the frame that its parent has changed the frame's sandbox flags or
+ // container policy.
+ IPC_MESSAGE_ROUTED1(FrameMsg_DidUpdateFramePolicy, blink::FramePolicy)
 @@ -1376,6 +1376,12 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_ForwardResourceTimingToParent,
  // out-of-process parent frame.
  IPC_MESSAGE_ROUTED0(FrameHostMsg_DispatchLoad)

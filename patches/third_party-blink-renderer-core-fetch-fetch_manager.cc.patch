@@ -27,8 +27,8 @@ index 098a36938e2fce8d70dc1ce247ca20fc02d23096..c3d5f907ffdffae3603c906097411cb8
      uint64_t,
 +#endif
      const ResourceResponse& response) {
-   // TODO(horo): This check could be false when we will use the response url
-   // in service worker responses. (crbug.com/553535)
+   // Verify that we're dealing with the URL we expect (which could be an
+   // HTTPS-upgraded variant of `url_list_.back()`.
 @@ -457,6 +470,16 @@ void FetchManager::Loader::DidReceiveResponse(
  
    response_has_no_store_header_ = response.CacheControlContainsNoStore();

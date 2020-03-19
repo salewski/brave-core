@@ -3,8 +3,8 @@ index e28838c63990ff1f1be26c7ae9c8faa63d939806..57836f791d99a918e7c58422bceaef48
 --- a/third_party/blink/renderer/core/dom/document_type.cc
 +++ b/third_party/blink/renderer/core/dom/document_type.cc
 @@ -25,6 +25,12 @@
- #include "third_party/blink/renderer/core/dom/document.h"
  #include "third_party/blink/renderer/core/dom/named_node_map.h"
+ #include "third_party/blink/renderer/platform/heap/heap.h"
  
 +#include "brave/third_party/blink/brave_page_graph/buildflags/buildflags.h"
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)

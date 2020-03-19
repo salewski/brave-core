@@ -12,9 +12,9 @@ index 9659f676d4b4e7dd9cf047669807bfd42b241008..526856c125b4989c52c589ff434c1800
  class Layer;
  }
 @@ -112,6 +114,9 @@ class WebRemoteFrame : public WebFrame {
-   virtual void ForwardResourceTimingToParent(const WebResourceTimingInfo&) = 0;
  
-   virtual void DispatchLoadEventForFrameOwner() = 0;
+   // Reports resource timing info for a navigation in this frame.
+   virtual void ForwardResourceTimingToParent(const WebResourceTimingInfo&) = 0;
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  virtual void RegisterRemoteFrameCreatedForFrameOwner(const GURL& url) = 0;
 +#endif

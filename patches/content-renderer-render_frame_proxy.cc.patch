@@ -12,18 +12,18 @@ index 9dbcd82b72c093426aa5e750ac27d39aaf1a0e5e..41cd0d306773eff7347c08177d8c26d3
  // nogncheck because dependency on //printing is conditional upon
  // enable_basic_printing flags.
 @@ -412,6 +414,10 @@ bool RenderFrameProxy::OnMessageReceived(const IPC::Message& msg) {
+                         OnDidSetFramePolicyHeaders)
      IPC_MESSAGE_HANDLER(FrameMsg_ForwardResourceTimingToParent,
                          OnForwardResourceTimingToParent)
-     IPC_MESSAGE_HANDLER(FrameMsg_DispatchLoad, OnDispatchLoad)
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +    IPC_MESSAGE_HANDLER(FrameMsg_RegisterRemoteFrameCreated,
 +                        OnRegisterRemoteFrameCreated)
 +#endif
      IPC_MESSAGE_HANDLER(FrameMsg_SetNeedsOcclusionTracking,
                          OnSetNeedsOcclusionTracking)
-     IPC_MESSAGE_HANDLER(FrameMsg_Collapse, OnCollapse)
+     IPC_MESSAGE_HANDLER(FrameMsg_DidUpdateName, OnDidUpdateName)
 @@ -524,6 +530,12 @@ void RenderFrameProxy::OnDispatchLoad() {
-   web_frame_->DispatchLoadEventForFrameOwner();
+       ResourceTimingInfoToWebResourceTimingInfo(info));
  }
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)

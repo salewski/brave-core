@@ -2,19 +2,16 @@ diff --git a/third_party/blink/renderer/bindings/core/v8/scheduled_action.cc b/t
 index 1e0faaca8f589086af6a5060a9fb78d1748a25be..74278d634d6a9069acbe832e08e7a18158db03d5 100644
 --- a/third_party/blink/renderer/bindings/core/v8/scheduled_action.cc
 +++ b/third_party/blink/renderer/bindings/core/v8/scheduled_action.cc
-@@ -94,7 +94,11 @@ ScheduledAction::ScheduledAction(ScriptState* script_state,
- ScheduledAction::ScheduledAction(ScriptState* script_state, const String& code)
+@@ -74,6 +74,9 @@ ScheduledAction::ScheduledAction(ScriptState* script_state,
+                                  const String& handler)
      : script_state_(
-           MakeGarbageCollected<ScriptStateProtectingContext>(script_state)),
--      code_(code) {}
-+      code_(code) {
+           MakeGarbageCollected<ScriptStateProtectingContext>(script_state)) {
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  parent_script_id_ = script_state->GetIsolate()->GetExecutingScriptId();
 +#endif
-+}
- 
- ScheduledAction::ScheduledAction(ScriptState* script_state)
-     : script_state_(
+   if (script_state->World().IsWorkerWorld() ||
+       BindingSecurity::ShouldAllowAccessToFrame(
+           EnteredDOMWindow(script_state->GetIsolate()),
 @@ -174,11 +178,20 @@ void ScheduledAction::Execute(LocalFrame* frame) {
      // behavior, but this causes failures on
      // wpt/html/webappapis/scripting/processing-model-2/compile-error-cross-origin-setTimeout.html

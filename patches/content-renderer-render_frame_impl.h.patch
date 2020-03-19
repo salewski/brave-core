@@ -35,9 +35,9 @@ index b1241cfbe4c2fb15bd00f742fa81e2d3afcdc9bc..e0aa6b8dd86e2dd5c99476fa8e891758
                            const blink::WebURL& initiator_url,
                            blink::NavigationBlockedReason reason) override;
 @@ -1130,6 +1141,12 @@ class CONTENT_EXPORT RenderFrameImpl
-   void OnAddMessageToConsole(blink::mojom::ConsoleMessageLevel level,
-                              const std::string& message,
-                              bool discard_duplicates);
+   void OnSelectRange(const gfx::Point& base, const gfx::Point& extent);
+   void OnCopyImageAt(int x, int y);
+   void OnSaveImageAt(int x, int y);
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  void OnRegisterResourceBlockAd(const GURL& url,
 +                                 const std::string& rule);

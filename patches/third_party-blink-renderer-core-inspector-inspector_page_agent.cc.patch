@@ -37,7 +37,7 @@ index 98229c0fc7ff5c86fe0da4d20936cbcfe90c9720..0130fc2cfacb22aa2633c83560c85823
          ScriptController::kExecuteScriptWhenScriptsDisabled);
    }
  }
-@@ -1357,6 +1361,29 @@ Response InspectorPageAgent::waitForDebugger() {
+@@ -1380,6 +1365,29 @@ Response InspectorPageAgent::setInterceptFileChooserDialog(bool enabled) {
    return Response::OK();
  }
  
@@ -64,6 +64,6 @@ index 98229c0fc7ff5c86fe0da4d20936cbcfe90c9720..0130fc2cfacb22aa2633c83560c85823
 +}
 +#endif
 +
- protocol::Response InspectorPageAgent::generateTestReport(const String& message,
-                                                           Maybe<String> group) {
+ Response InspectorPageAgent::generateTestReport(const String& message,
+                                                 Maybe<String> group) {
    Document* document = inspected_frames_->Root()->GetDocument();

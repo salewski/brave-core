@@ -17,22 +17,22 @@ index 174b1a2c0490c2fb8936f242c1048dfa04c02855..da34cf199fc395260a5646131f6aab6c
  
  Vector<String> ParseAndSanitize(const String& accept_languages) {
 @@ -35,14 +42,76 @@ NavigatorLanguage::NavigatorLanguage(ExecutionContext* context)
-     : context_(context) {}
+     : execution_context_(execution_context) {}
  
  AtomicString NavigatorLanguage::language() {
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  String result;
 +  if (RuntimeEnabledFeatures::NavigatorLanguageInInsecureContextEnabled() ||
-+      context_->IsSecureContext()) {
++      (execution_context_ && execution_context_->IsSecureContext())) {
 +    // We need to make sure we don't call languages(), since that would yield an
 +    // incorrect graph in the end
 +    EnsureUpdatedLanguage();
 +    result = languages_.front();
 +  }
 +
-+  if (context_) {
++  if (execution_context_) {
 +    brave_page_graph::PageGraph* page_graph =
-+      brave_page_graph::PageGraph::GetFromIsolate(*context_->GetIsolate());
++      brave_page_graph::PageGraph::GetFromIsolate(*execution_context_->GetIsolate());
 +    if (page_graph != nullptr) {
 +      page_graph->RegisterWebAPICall("NavigatorLanguage.language",
 +        std::vector<const String>());
@@ -43,7 +43,7 @@ index 174b1a2c0490c2fb8936f242c1048dfa04c02855..da34cf199fc395260a5646131f6aab6c
 +  return AtomicString(result);
 +#else
    if (RuntimeEnabledFeatures::NavigatorLanguageInInsecureContextEnabled() ||
-       context_->IsSecureContext()) {
+       (execution_context_ && execution_context_->IsSecureContext())) {
      return AtomicString(languages().front());
    }
    return AtomicString();
@@ -55,7 +55,7 @@ index 174b1a2c0490c2fb8936f242c1048dfa04c02855..da34cf199fc395260a5646131f6aab6c
 +  {
 +    const Vector<String>* result;
 +    if (RuntimeEnabledFeatures::NavigatorLanguageInInsecureContextEnabled() ||
-+        context_->IsSecureContext()) {
++        (execution_context_ && execution_context_->IsSecureContext())) {
 +      EnsureUpdatedLanguage();
 +      result = &languages_;
 +    } else {
@@ -63,9 +63,9 @@ index 174b1a2c0490c2fb8936f242c1048dfa04c02855..da34cf199fc395260a5646131f6aab6c
 +      result = &empty_vector;
 +    }
 +
-+    if (context_) {
++    if (execution_context_) {
 +      brave_page_graph::PageGraph* page_graph =
-+        brave_page_graph::PageGraph::GetFromIsolate(*context_->GetIsolate());
++        brave_page_graph::PageGraph::GetFromIsolate(*execution_context_->GetIsolate());
 +
 +      if (page_graph != nullptr) {
 +        std::stringstream result_buffer;
@@ -91,7 +91,7 @@ index 174b1a2c0490c2fb8936f242c1048dfa04c02855..da34cf199fc395260a5646131f6aab6c
 +  }
 +#else
    if (RuntimeEnabledFeatures::NavigatorLanguageInInsecureContextEnabled() ||
-       context_->IsSecureContext()) {
+       (execution_context_ && execution_context_->IsSecureContext())) {
      EnsureUpdatedLanguage();
 @@ -50,6 +119,7 @@ const Vector<String>& NavigatorLanguage::languages() {
    }

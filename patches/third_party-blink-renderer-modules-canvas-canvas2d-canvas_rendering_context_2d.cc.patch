@@ -11,8 +11,8 @@ index 41dc3431667b9b799155e993e4900aed20ef335b..1a6a5cf6d3908c829241ba76da9a4978
  #include "third_party/blink/public/platform/platform.h"
  #include "third_party/blink/public/platform/task_type.h"
 @@ -76,6 +77,12 @@
+ #include "third_party/blink/renderer/platform/wtf/math_extras.h"
  #include "third_party/blink/renderer/platform/wtf/text/string_builder.h"
- #include "third_party/blink/renderer/platform/wtf/typed_arrays/array_buffer_contents.h"
  
 +#include "brave/third_party/blink/brave_page_graph/buildflags/buildflags.h"
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)

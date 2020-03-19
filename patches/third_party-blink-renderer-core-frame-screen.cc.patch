@@ -15,8 +15,8 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
  
  namespace {
 @@ -53,6 +58,32 @@ int Screen::height() const {
-   if (!frame)
      return 0;
+   }
    Page* page = frame->GetPage();
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
@@ -48,8 +48,8 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
      WebScreenInfo screen_info = GetScreenInfo(*frame);
      return static_cast<int>(
 @@ -66,6 +97,32 @@ int Screen::width() const {
-   if (!frame)
      return 0;
+   }
    Page* page = frame->GetPage();
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
@@ -80,10 +80,10 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
    if (page->GetSettings().GetReportScreenSizeInPhysicalPixelsQuirk()) {
      WebScreenInfo screen_info = GetScreenInfo(*frame);
      return static_cast<int>(
-@@ -78,6 +135,26 @@ int Screen::colorDepth() const {
-   LocalFrame* frame = GetFrame();
-   if (!frame)
+@@ -87,6 +142,26 @@ unsigned Screen::colorDepth() const {
+       return display_->color_depth;
      return 0;
+   }
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  {
@@ -107,10 +107,10 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
    return static_cast<unsigned>(GetScreenInfo(*frame).depth);
  }
  
-@@ -78,6 +155,26 @@ unsigned Screen::pixelDepth() const {
-   LocalFrame* frame = GetFrame();
-   if (!frame)
+@@ -111,6 +175,26 @@ unsigned Screen::pixelDepth() const {
+       return display_->color_depth;
      return 0;
+   }
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  {
@@ -134,9 +134,9 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
    return static_cast<unsigned>(GetScreenInfo(*frame).depth);
  }
  
-@@ -93,6 +190,33 @@ int Screen::availLeft() const {
-   if (!frame)
+@@ -108,6 +210,33 @@ int Screen::availLeft() const {
      return 0;
+   }
    Page* page = frame->GetPage();
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
@@ -168,9 +168,9 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
    if (page->GetSettings().GetReportScreenSizeInPhysicalPixelsQuirk()) {
      WebScreenInfo screen_info = GetScreenInfo(*frame);
      return static_cast<int>(lroundf(screen_info.available_rect.x *
-@@ -106,6 +230,33 @@ int Screen::availTop() const {
-   if (!frame)
+@@ -124,6 +250,33 @@ int Screen::availTop() const {
      return 0;
+   }
    Page* page = frame->GetPage();
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
@@ -202,9 +202,9 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
    if (page->GetSettings().GetReportScreenSizeInPhysicalPixelsQuirk()) {
      WebScreenInfo screen_info = GetScreenInfo(*frame);
      return static_cast<int>(lroundf(screen_info.available_rect.y *
-@@ -119,6 +270,33 @@ int Screen::availHeight() const {
-   if (!frame)
+@@ -140,6 +290,33 @@ int Screen::availHeight() const {
      return 0;
+   }
    Page* page = frame->GetPage();
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
@@ -236,9 +236,9 @@ index f31ab99b2c40a8b84e8edfd019c410dac9a1360f..9fffc73e5dae879fcc6ea5abe1dd0446
    if (page->GetSettings().GetReportScreenSizeInPhysicalPixelsQuirk()) {
      WebScreenInfo screen_info = GetScreenInfo(*frame);
      return static_cast<int>(lroundf(screen_info.available_rect.height *
-@@ -132,6 +310,32 @@ int Screen::availWidth() const {
-   if (!frame)
+@@ -156,6 +330,32 @@ int Screen::availWidth() const {
      return 0;
+   }
    Page* page = frame->GetPage();
 +
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)

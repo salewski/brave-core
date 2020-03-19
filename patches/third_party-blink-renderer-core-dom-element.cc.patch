@@ -2,7 +2,7 @@ diff --git a/third_party/blink/renderer/core/dom/element.cc b/third_party/blink/
 index a1bbda4ac2ee3cfb3198970645a02f2a21f30167..bb721a39fad396bdb178c637dca9dd47aa83020c 100644
 --- a/third_party/blink/renderer/core/dom/element.cc
 +++ b/third_party/blink/renderer/core/dom/element.cc
-@@ -163,6 +163,15 @@
+@@ -166,6 +166,15 @@
  #include "third_party/blink/renderer/platform/wtf/text/string_builder.h"
  #include "third_party/blink/renderer/platform/wtf/text/text_position.h"
  
@@ -17,7 +17,7 @@ index a1bbda4ac2ee3cfb3198970645a02f2a21f30167..bb721a39fad396bdb178c637dca9dd47
 +
  namespace blink {
  
- using namespace html_names;
+ enum class ClassStringContent { kEmpty, kWhiteSpaceOnly, kHasClasses };
 @@ -364,7 +373,25 @@ Element* Element::Create(const QualifiedName& tag_name, Document* document) {
  Element::Element(const QualifiedName& tag_name,
                   Document* document,
@@ -29,11 +29,11 @@ index a1bbda4ac2ee3cfb3198970645a02f2a21f30167..bb721a39fad396bdb178c637dca9dd47
 +    ::brave_page_graph::ElementType element_type =
 +        ::brave_page_graph::kElementTypeDefault;
 +
-+    if (HasTagName(kIFrameTag)
-+        || HasTagName(kObjectTag)
-+        || HasTagName(kEmbedTag)
-+        || HasTagName(kFrameTag)
-+        || HasTagName(kPortalTag)) {
++    if (HasTagName(html_names::kIFrameTag)
++        || HasTagName(html_names::kObjectTag)
++        || HasTagName(html_names::kEmbedTag)
++        || HasTagName(html_names::kFrameTag)
++        || HasTagName(html_names::kPortalTag)) {
 +      element_type = ::brave_page_graph::kElementTypeFrameOwner;
 +    }
 +

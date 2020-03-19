@@ -31,8 +31,8 @@ index bd596fdc462863fe881fb5d467cc4bbde6b87752..b00c9a446787109cd2bc6d0e80e54e1c
                                              JavaScriptResultCallback callback) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
 @@ -1492,6 +1506,10 @@ bool RenderFrameHostImpl::OnMessageReceived(const IPC::Message &msg) {
+     IPC_MESSAGE_HANDLER(FrameHostMsg_UpdateTitle, OnUpdateTitle)
      IPC_MESSAGE_HANDLER(FrameHostMsg_DidBlockNavigation, OnDidBlockNavigation)
-     IPC_MESSAGE_HANDLER(FrameHostMsg_AbortNavigation, OnAbortNavigation)
      IPC_MESSAGE_HANDLER(FrameHostMsg_DispatchLoad, OnDispatchLoad)
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +    IPC_MESSAGE_HANDLER(FrameHostMsg_RegisterRemoteFrameCreated,
@@ -42,7 +42,7 @@ index bd596fdc462863fe881fb5d467cc4bbde6b87752..b00c9a446787109cd2bc6d0e80e54e1c
                          OnForwardResourceTimingToParent)
      IPC_MESSAGE_HANDLER(AccessibilityHostMsg_EventBundle, OnAccessibilityEvents)
 @@ -3299,6 +3317,23 @@ void RenderFrameHostImpl::OnDispatchLoad() {
-   proxy->Send(new FrameMsg_DispatchLoad(proxy->GetRoutingID()));
+   proxy->GetAssociatedRemoteFrame()->DispatchLoadEventForFrameOwner();
  }
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)

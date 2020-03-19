@@ -109,8 +109,8 @@ index 8cc22fa0e5cfb193d6aafcea861b7a346dc0d4b6..96f89245bb09e7b89a3f9dbd012fe7bf
 +      , parent_script_id
 +#endif
 +      );
-   int entry = table->FindEntry(isolate, &key);
-   if (entry == kNotFound) return MaybeHandle<SharedFunctionInfo>();
+   InternalIndex entry = table->FindEntry(isolate, &key);
+   if (entry.is_not_found()) return MaybeHandle<SharedFunctionInfo>();
    int index = EntryToIndex(entry);
 @@ -6983,11 +7025,19 @@ MaybeHandle<SharedFunctionInfo> CompilationCacheTable::LookupScript(
  InfoCellPair CompilationCacheTable::LookupEval(
@@ -131,8 +131,8 @@ index 8cc22fa0e5cfb193d6aafcea861b7a346dc0d4b6..96f89245bb09e7b89a3f9dbd012fe7bf
 +      , parent_script_id
 +#endif
 +      );
-   int entry = table->FindEntry(isolate, &key);
-   if (entry == kNotFound) return empty_result;
+   InternalIndex entry = table->FindEntry(isolate, &key);
+   if (entry.is_not_found()) return empty_result;
    int index = EntryToIndex(entry);
 @@ -7014,7 +7064,11 @@ Handle<Object> CompilationCacheTable::LookupRegExp(Handle<String> src,
  Handle<CompilationCacheTable> CompilationCacheTable::PutScript(
@@ -159,7 +159,7 @@ index 8cc22fa0e5cfb193d6aafcea861b7a346dc0d4b6..96f89245bb09e7b89a3f9dbd012fe7bf
 +      );
    Handle<Object> k = key.AsHandle(isolate);
    cache = EnsureCapacity(isolate, cache, 1);
-   int entry = cache->FindInsertionEntry(key.Hash());
+   InternalIndex entry = cache->FindInsertionEntry(key.Hash());
 @@ -7037,10 +7095,18 @@ Handle<CompilationCacheTable> CompilationCacheTable::PutEval(
      Handle<CompilationCacheTable> cache, Handle<String> src,
      Handle<SharedFunctionInfo> outer_info, Handle<SharedFunctionInfo> value,
@@ -180,4 +180,4 @@ index 8cc22fa0e5cfb193d6aafcea861b7a346dc0d4b6..96f89245bb09e7b89a3f9dbd012fe7bf
 +      );
    {
      Handle<Object> k = key.AsHandle(isolate);
-     int entry = cache->FindEntry(isolate, &key);
+     InternalIndex entry = cache->FindEntry(isolate, &key);

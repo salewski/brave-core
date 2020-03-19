@@ -12,8 +12,8 @@ index cbb6824fa9412a5ea47fc1f5c0f77908edf8be3b..61c3c2e79c37581203a7096971a590ec
  
  namespace probe {
 @@ -169,6 +171,10 @@ class CORE_EXPORT InspectorPageAgent final
-   protocol::Response clearCompilationCache() override;
    protocol::Response waitForDebugger() override;
+   protocol::Response setInterceptFileChooserDialog(bool enabled) override;
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  protocol::Response generatePageGraph(String* data) override;

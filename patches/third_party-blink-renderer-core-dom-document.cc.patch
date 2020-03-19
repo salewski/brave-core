@@ -29,7 +29,7 @@ index 0851cbf21a11b41cf446b7fcd664d8b0ec3a6881..aa90f39f216d526c763e640b5cc006cd
 +#endif
        evaluate_media_queries_on_style_recalc_(false),
        pending_sheet_layout_(kNoLayoutWithPendingSheets),
-       frame_(initializer.GetFrame()),
+       window_agent_factory_(security_initializer.GetWindowAgentFactory()),
 @@ -1218,7 +1232,150 @@ Document::~Document() {
    DCHECK(!ax_object_cache_);
  

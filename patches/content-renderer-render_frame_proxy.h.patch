@@ -12,12 +12,12 @@ index 04a8e0fcb065986efa5df55475e7ceb6df234df3..3ed4c75f27beee824503f1e315693dcb
  struct FramePolicy;
  struct WebRect;
 @@ -247,6 +249,9 @@ class CONTENT_EXPORT RenderFrameProxy : public IPC::Listener,
+       blink::ParsedFeaturePolicy parsed_feature_policy);
    void OnForwardResourceTimingToParent(
        const ResourceTimingInfo& resource_timing);
-   void OnDispatchLoad();
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  void OnRegisterRemoteFrameCreated(const GURL& url);
 +#endif
    void OnSetNeedsOcclusionTracking(bool);
-   void OnCollapse(bool collapsed);
    void OnDidUpdateName(const std::string& name, const std::string& unique_name);
+   void OnAddContentSecurityPolicies(

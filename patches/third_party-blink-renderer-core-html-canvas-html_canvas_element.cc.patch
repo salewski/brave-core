@@ -22,7 +22,7 @@ index 727f95a161e1f1b38c8eba26cf6ecc5f6b30c55b..10bded40fce479fd2bcc59db59057179
 +
  namespace blink {
  
- using namespace html_names;
+ namespace {
 @@ -252,6 +259,66 @@ CanvasRenderingContext* HTMLCanvasElement::GetCanvasRenderingContext(
    auto* result = GetCanvasRenderingContextInternal(type, attributes);
    if (ContentsCcLayer() != old_contents_cc_layer)

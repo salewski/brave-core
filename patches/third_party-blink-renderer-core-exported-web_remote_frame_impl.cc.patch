@@ -11,8 +11,8 @@ index e98696f7d6e25b5ce93d065baaccc590ac5afabb..3d53949e962a30a3fe03032aabc7f42a
  namespace blink {
  
  namespace {
-@@ -355,6 +357,14 @@ void WebRemoteFrameImpl::DispatchLoadEventForFrameOwner() {
-   GetFrame()->Owner()->DispatchLoad();
+@@ -320,6 +322,14 @@ void WebRemoteFrameImpl::ForwardResourceTimingToParent(
+                           mojo::NullReceiver() /* worker_timing_receiver */);
  }
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)

@@ -11,24 +11,24 @@ index a5987063737c9ebeeab77f47e3d5f57ffb75a353..d2224c5100f1314daee8a52ef4a9c306
  namespace v8 {
  namespace internal {
  
-@@ -112,12 +114,24 @@ class V8_EXPORT_PRIVATE Compiler : public AllStatic {
-       int eval_scope_position, int eval_position);
+@@ -115,15 +117,25 @@ class V8_EXPORT_PRIVATE Compiler : public AllStatic {
  
    struct ScriptDetails {
--    ScriptDetails() : line_offset(0), column_offset(0) {}
-+    ScriptDetails()
-+        : line_offset(0), column_offset(0)
-+#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
-+        , parent_script_id(0)
-+#endif
-+        {}
-     explicit ScriptDetails(Handle<Object> script_name)
--        : line_offset(0), column_offset(0), name_obj(script_name) {}
+     ScriptDetails()
+-        : line_offset(0), column_offset(0), repl_mode(REPLMode::kNo) {}
 +        : line_offset(0), column_offset(0),
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +        parent_script_id(0),
 +#endif
-+        name_obj(script_name) {}
++        repl_mode(REPLMode::kNo) {}
+     explicit ScriptDetails(Handle<Object> script_name)
+         : line_offset(0),
+           column_offset(0),
++#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
++          parent_script_id(0),
++#endif
+           name_obj(script_name),
+           repl_mode(REPLMode::kNo) {}
  
      int line_offset;
      int column_offset;

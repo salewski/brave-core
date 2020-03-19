@@ -10,9 +10,9 @@ index f5c04766b8a28cddb64302a51f295677cca5e1af..a9f65b3444050675eb6a263a74ec8fdb
  #include "build/build_config.h"
  #include "gpu/GLES2/gl2extchromium.h"
  #include "gpu/command_buffer/client/gles2_interface.h"
-@@ -115,6 +116,11 @@
+@@ -116,6 +117,11 @@
+ #include "third_party/blink/renderer/platform/wtf/text/string_utf8_adaptor.h"
  #include "third_party/blink/renderer/platform/wtf/threading_primitives.h"
- #include "third_party/blink/renderer/platform/wtf/typed_arrays/array_buffer_contents.h"
  
 +#include "brave/third_party/blink/brave_page_graph/buildflags/buildflags.h"
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
@@ -20,8 +20,8 @@ index f5c04766b8a28cddb64302a51f295677cca5e1af..a9f65b3444050675eb6a263a74ec8fdb
 +#endif
 +
  namespace blink {
- namespace {
- const base::Feature kLowLatencyWebGLSwapChain{
+ 
+ bool WebGLRenderingContextBase::webgl_context_limits_initialized_ = false;
 @@ -2807,6 +2808,8 @@ WebGLActiveInfo* WebGLRenderingContextBase::getActiveAttrib(
      GLuint index) {
    if (!ValidateWebGLProgramOrShader("getActiveAttrib", program))

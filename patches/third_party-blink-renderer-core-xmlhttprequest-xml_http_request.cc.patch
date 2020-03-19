@@ -19,9 +19,9 @@ index c474f520f11bce5d73909b00b6689333b451d1a7..d44d5a21f1409717e8d7ee8509ca87c9
  namespace blink {
  
  namespace {
-@@ -1160,6 +1168,25 @@ void XMLHttpRequest::CreateRequest(scoped_refptr<EncodedFormData> http_body,
-                                                    resource_loader_options);
+@@ -1180,6 +1188,25 @@ void XMLHttpRequest::CreateRequest(scoped_refptr<EncodedFormData> http_body,
    loader_->SetTimeout(timeout_);
+   base::TimeTicks start_time = base::TimeTicks::Now();
    loader_->Start(request);
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +  {
@@ -43,8 +43,8 @@ index c474f520f11bce5d73909b00b6689333b451d1a7..d44d5a21f1409717e8d7ee8509ca87c9
 +  }
 +#endif
  
-   if (!async_)
-     ThrowForLoadFailureIfNeeded(exception_state, String());
+   if (!async_) {
+     base::TimeDelta blocking_time = base::TimeTicks::Now() - start_time;
 @@ -1358,6 +1387,23 @@ void XMLHttpRequest::HandleRequestError(DOMExceptionCode exception_code,
  
    probe::DidFinishXHR(GetExecutionContext(), this);
