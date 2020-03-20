@@ -71,6 +71,7 @@ extern const char kBraveDarkMode[];
 extern const char kOtherBookmarksMigrated[];
 extern const char kBinanceAccessToken[];
 extern const char kBinanceRefreshToken[];
+extern const char kBinanceCodeChallenge[];
 
 #if defined(OS_ANDROID)
 extern const char kDesktopModeEnabled[];
